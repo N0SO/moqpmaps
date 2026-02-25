@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Missouri QSO Party Planner</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    #map { height: 100vh; width: 100%; }
+
+    .plan-control {
+      background: white;
+      padding: 6px;
+      z-index: 1000;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([38.5, -92.5], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const PlanControl = L.Control.extend({
+  options: { position: 'topright' },
+  onAdd: function () {
+    const div = L.DomUtil.create('div', 'plan-control');
+    div.innerHTML = `
+      Callsign:<br>
+      <input id="callsign" placeholder="N0CALL"><br><br>
+      <button onclick="savePlan()">Save</button>
+      <button onclick="loadPlan()">Load</button>
+    `;
+    return div;
+  }
+});
+map.addControl(new PlanControl());
+
+let selectedCounties = new Map();
+let countyLayer;
+
+function countyId(f) {
+  return `${f.properties.STATE}${f.properties.COUNTY}`;
+}
+
+function countyStyle(feature) {
+  return {
+    color: '#333',
+    weight: 1,
+    fillColor: selectedCounties.has(countyId(feature))
+      ? '#e74c3c'
+      : '#5dade2',
+    fillOpacity: 0.7
+  };
+}
+
+function savePlan() {
+  const plan = {
+    callsign: document.getElementById('callsign').value || "UNKNOWN",
+    event: "MO_QSO_PARTY",
+    counties: [...selectedCounties.values()]
+  };
+
+  fetch('/api/savePlan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(plan)
+  }).then(() => alert("Plan saved"));
+}
+
+function loadPlan() {
+  const callsign = document.getElementById('callsign').value;
+  if (!callsign) return;
+
+  fetch(`/api/loadPlan?callsign=${callsign}&event=MO_QSO_PARTY`)
+    .then(r => r.json())
+    .then(data => {
+      selectedCounties.clear();
+      data.forEach(c => {
+        selectedCounties.set(`${c.state_fips}${c.county_fips}`, c);
+      });
+      countyLayer.setStyle(countyStyle);
+    });
+}
+
+fetch('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json')
+  .then(r => r.json())
+  .then(data => {
+    const mo = data.features.filter(f => f.properties.STATE === "29");
+
+    countyLayer = L.geoJSON(mo, {
+      style: countyStyle,
+      onEachFeature: (feature, layer) => {
+        const type = feature.properties.LSAD === "25" ? "City" : "County";
+        layer.bindTooltip(`${feature.properties.NAME} ${type}`, { sticky: true });
+
+        layer.on('click', () => {
+          const id = countyId(feature);
+          if (selectedCounties.has(id)) {
+            selectedCounties.delete(id);
+          } else {
+            selectedCounties.set(id, {
+              stateFips: feature.properties.STATE,
+              countyFips: feature.properties.COUNTY,
+              name: feature.properties.NAME,
+              type
+            });
+          }
+          countyLayer.setStyle(countyStyle);
+        });
+      }
+    }).addTo(map);
+  });
+</script>
+
+</body>
+</html>
+
