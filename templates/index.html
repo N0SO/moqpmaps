@@ -41,13 +41,15 @@ const PlanControl = L.Control.extend({
       <input id="callsign" placeholder="N0CALL"><br><br>
       <button onclick="savePlan()">Save</button>
       <button onclick="loadPlan()">Load</button>
+      <button onclick="startPlanning()">New Plan</button>
     `;
     return div;
   }
 });
 map.addControl(new PlanControl());
 
-let selectedCounties = new Map();
+let allActiveCounties = new Map();  // aggregated DB data
+let myPlanCounties = new Map();     // this operator’s plan
 let countyLayer;
 
 function countyId(f) {
@@ -55,21 +57,44 @@ function countyId(f) {
 }
 
 function countyStyle(feature) {
+  const id = countyId(feature);
+
+  if (myPlanCounties.has(id)) {
+    return {
+      color: '#000',
+      weight: 1,
+      fillColor: '#ff0000',   // MY plan
+      fillOpacity: 0.8
+    };
+  }
+
+  if (allActiveCounties.has(id)) {
+    return {
+      color: '#333',
+      weight: 1,
+      fillColor: '#e74c3c',   // Someone else
+      fillOpacity: 0.6
+    };
+  }
+
   return {
     color: '#333',
     weight: 1,
-    fillColor: selectedCounties.has(countyId(feature))
-      ? '#e74c3c'
-      : '#5dade2',
+    fillColor: '#5dade2',    // Unclaimed
     fillOpacity: 0.7
   };
+}
+
+function startPlanning() {
+  myPlanCounties.clear();
+  countyLayer.setStyle(countyStyle);
 }
 
 function savePlan() {
   const plan = {
     callsign: document.getElementById('callsign').value || "UNKNOWN",
     event: "MO_QSO_PARTY",
-    counties: [...selectedCounties.values()]
+    counties: [...myPlanCounties.values()]
   };
 
   fetch('/api/savePlan', {
@@ -105,20 +130,23 @@ fetch('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties
         const type = feature.properties.LSAD === "25" ? "City" : "County";
         layer.bindTooltip(`${feature.properties.NAME} ${type}`, { sticky: true });
 
-        layer.on('click', () => {
-          const id = countyId(feature);
-          if (selectedCounties.has(id)) {
-            selectedCounties.delete(id);
-          } else {
-            selectedCounties.set(id, {
-              stateFips: feature.properties.STATE,
-              countyFips: feature.properties.COUNTY,
-              name: feature.properties.NAME,
-              type
-            });
-          }
-          countyLayer.setStyle(countyStyle);
-        });
+layer.on('click', () => {
+  const id = countyId(feature);
+
+  if (myPlanCounties.has(id)) {
+    myPlanCounties.delete(id);
+  } else {
+    myPlanCounties.set(id, {
+      stateFips: feature.properties.STATE,
+      countyFips: feature.properties.COUNTY,
+      name: feature.properties.NAME,
+      type
+    });
+  }
+
+  countyLayer.setStyle(countyStyle);
+});
+
       }
     }).addTo(map);
 
@@ -128,15 +156,11 @@ fetch('/api/allActive')
   .then(data => {
     data.forEach(c => {
       const id = `${c.state_fips}${c.county_fips}`;
-      selectedCounties.set(id, {
-        stateFips: c.state_fips,
-        countyFips: c.county_fips
-      });
+      allActiveCounties.set(id, true);
     });
 
     countyLayer.setStyle(countyStyle);
   });
-
 
   });
 </script>

@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 app = Flask(__name__)
 
