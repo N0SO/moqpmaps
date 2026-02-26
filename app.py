@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 from flask import Flask, request, jsonify, render_template
 import pymysql
-from datetime import datetime
+from datetime import datetime, timezone
 from moqpdbconfig import *
+
+VERSION = '0.0.2'
 
 app = Flask(__name__)
 
@@ -32,12 +34,15 @@ def save_plan():
     """, (
         data["callsign"],
         data["event"],
-        datetime.utcnow()
+        datetime.now(timezone.utc)
     ))
 
     plan_id = cur.lastrowid
 
+    print(f'{data["counties"]=}')
+
     for c in data["counties"]:
+        print(f'{c=}')
         cur.execute("""
             INSERT INTO plan_counties
             (plan_id, state_fips, county_fips, name, type)
@@ -87,6 +92,26 @@ def load_plan():
     conn.close()
 
     return jsonify(counties)
+
+
+@app.route("/api/allActive")
+def all_active():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT state_fips, county_fips
+        FROM plan_counties
+    """)
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    #print(f'{rows=}')
+
+    # Return simple list of IDs
+    return jsonify(rows)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)

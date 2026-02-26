@@ -121,6 +121,23 @@ fetch('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties
         });
       }
     }).addTo(map);
+
+// Load all active counties on startup
+fetch('/api/allActive')
+  .then(r => r.json())
+  .then(data => {
+    data.forEach(c => {
+      const id = `${c.state_fips}${c.county_fips}`;
+      selectedCounties.set(id, {
+        stateFips: c.state_fips,
+        countyFips: c.county_fips
+      });
+    });
+
+    countyLayer.setStyle(countyStyle);
+  });
+
+
   });
 </script>
 
