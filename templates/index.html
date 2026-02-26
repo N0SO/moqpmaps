@@ -42,6 +42,7 @@ const PlanControl = L.Control.extend({
       <button onclick="savePlan()">Save</button>
       <button onclick="loadPlan()">Load</button>
       <button onclick="startPlanning()">New Plan</button>
+      <p>Click New Plan to start your route</p>
     `;
     return div;
   }
@@ -111,9 +112,9 @@ function loadPlan() {
   fetch(`/api/loadPlan?callsign=${callsign}&event=MO_QSO_PARTY`)
     .then(r => r.json())
     .then(data => {
-      selectedCounties.clear();
+      myPlanCounties.clear();
       data.forEach(c => {
-        selectedCounties.set(`${c.state_fips}${c.county_fips}`, c);
+        myPlanCounties.set(`${c.stateFips}${c.countyFips}`, c);
       });
       countyLayer.setStyle(countyStyle);
     });
@@ -155,7 +156,7 @@ fetch('/api/allActive')
   .then(r => r.json())
   .then(data => {
     data.forEach(c => {
-      const id = `${c.state_fips}${c.county_fips}`;
+      const id = `${c.stateFips}${c.countyFips}`;
       allActiveCounties.set(id, true);
     });
 

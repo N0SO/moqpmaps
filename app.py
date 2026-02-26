@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.0.3'
+VERSION = '0.1.0'
 
 app = Flask(__name__)
 
@@ -24,15 +24,27 @@ def index():
 @app.route("/api/savePlan", methods=["POST"])
 def save_plan():
     data = request.json
+    callsign = data['callsign']
+    callsign = callsign.upper()
 
     conn = get_db()
     cur = conn.cursor()
+
+    # if old data for this call exists, delete it.
+    cur.execute(f"""
+         select * from plans where callsign='{callsign}' LIMIT 1;
+    """)
+    plan = cur.fetchone()
+    if (plan):
+        # Delete old plan for this callsign.
+        print(f'Deleting old data for {callsign}...')
+        cur.execute(f"""delete from plans where callsign='{callsign}';""")
 
     cur.execute("""
         INSERT INTO plans (callsign, event, saved_at)
         VALUES (%s, %s, %s)
     """, (
-        data["callsign"],
+        callsign,
         data["event"],
         datetime.now(timezone.utc)
     ))
@@ -45,7 +57,7 @@ def save_plan():
         print(f'{c=}')
         cur.execute("""
             INSERT INTO plan_counties
-            (plan_id, state_fips, county_fips, name, type)
+            (plan_id, stateFips, countyFips, name, type)
             VALUES (%s, %s, %s, %s, %s)
         """, (
             plan_id,
@@ -64,6 +76,7 @@ def save_plan():
 @app.route("/api/loadPlan")
 def load_plan():
     callsign = request.args.get("callsign")
+    callsign = callsign.upper()
     event = request.args.get("event")
 
     conn = get_db()
@@ -77,17 +90,19 @@ def load_plan():
     """, (callsign, event))
 
     plan = cur.fetchone()
+    print(f'{callsign=}\n{plan=}')
+
     if not plan:
         return jsonify([])
 
     cur.execute("""
-        SELECT state_fips, county_fips, name, type
+        SELECT stateFips, countyFips, name, type
         FROM plan_counties
         WHERE plan_id=%s
     """, (plan["id"],))
 
     counties = cur.fetchall()
-
+    print(f'{counties=}')
     cur.close()
     conn.close()
 
@@ -100,7 +115,7 @@ def all_active():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT DISTINCT state_fips, county_fips
+        SELECT DISTINCT stateFips, countyFips
         FROM plan_counties
     """)
 
