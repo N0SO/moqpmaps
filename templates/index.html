@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Missouri QSO Party County Activation /Route Planner</title>
+  <title>Missouri QSO Party County Activation/Route Planner</title>
 
   <link
     rel="stylesheet"
@@ -37,13 +37,16 @@ const PlanControl = L.Control.extend({
   onAdd: function () {
     const div = L.DomUtil.create('div', 'plan-control');
     div.innerHTML = `
-      <h4>Missouri QSO Party County Activation /Route Planner</h4>
-      Callsign:<br>
-      <input id="callsign" placeholder="N0CALL"><br><br>
+      <h3>Missouri QSO Party County Activation/Route Planner</h3>
+      <p>Enter your callsign and click <i>New Plan</i> or <br>
+         <i>Load Plan</i>. Click on the counties you plan to <br>
+         activate. They will turn red. Click <i>Save</i>, <br>
+         then refresh the browser.</p>
+      <p><a href="{{ url_for('howto') }}"><button>More Details</button></a></p>
+      <p>Callsign: <input id="callsign" placeholder="N0CALL"></p>
       <button onclick="savePlan()">Save</button>
-      <button onclick="loadPlan()">Load</button>
+      <button onclick="loadPlan()">Load Plan</button>
       <button onclick="startPlanning()">New Plan</button>
-      <p>Click New Plan to start your route</p>
     `;
     return div;
   }
@@ -141,7 +144,7 @@ layer.on('mouseover', () => {
   if (allActiveCounties.has(id)) {
     const calls = allActiveCounties.get(id).callsigns;
     layer.setTooltipContent(
-      `${baseName}<br><b>Active:</b> ${calls.join(', ')}`
+      `${baseName}<br><b>Active:</b> ${calls.join('<br>')}`
     );
   } else {
     layer.setTooltipContent(baseName);

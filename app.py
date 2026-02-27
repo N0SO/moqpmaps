@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 app = Flask(__name__)
 
@@ -20,6 +20,10 @@ def get_db():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/howto")
+def howto():
+    return render_template("howto.html")
 
 @app.route("/api/savePlan", methods=["POST"])
 def save_plan():
