@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Missouri QSO Party Planner</title>
+  <title>Missouri QSO Party County Activation /Route Planner</title>
 
   <link
     rel="stylesheet"
@@ -37,6 +37,7 @@ const PlanControl = L.Control.extend({
   onAdd: function () {
     const div = L.DomUtil.create('div', 'plan-control');
     div.innerHTML = `
+      <h4>Missouri QSO Party County Activation /Route Planner</h4>
       Callsign:<br>
       <input id="callsign" placeholder="N0CALL"><br><br>
       <button onclick="savePlan()">Save</button>
@@ -128,8 +129,25 @@ fetch('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties
     countyLayer = L.geoJSON(mo, {
       style: countyStyle,
       onEachFeature: (feature, layer) => {
-        const type = feature.properties.LSAD === "25" ? "City" : "County";
-        layer.bindTooltip(`${feature.properties.NAME} ${type}`, { sticky: true });
+        const type = feature.properties.LSAD === "city" ? "City" : "County";
+        //const type = feature.properties.LSAD === "25" ? "City" : "County";
+
+layer.bindTooltip("", { sticky: true });
+
+layer.on('mouseover', () => {
+  const id = countyId(feature);
+  const baseName = `${feature.properties.NAME} ${type}`;
+
+  if (allActiveCounties.has(id)) {
+    const calls = allActiveCounties.get(id).callsigns;
+    layer.setTooltipContent(
+      `${baseName}<br><b>Active:</b> ${calls.join(', ')}`
+    );
+  } else {
+    layer.setTooltipContent(baseName);
+  }
+});
+
 
 layer.on('click', () => {
   const id = countyId(feature);
@@ -157,11 +175,18 @@ fetch('/api/allActive')
   .then(data => {
     data.forEach(c => {
       const id = `${c.stateFips}${c.countyFips}`;
-      allActiveCounties.set(id, true);
+
+      allActiveCounties.set(id, {
+        callsigns: c.callsigns
+          ? c.callsigns.split(',')
+          : []
+      });
     });
 
     countyLayer.setStyle(countyStyle);
   });
+
+
 
   });
 </script>

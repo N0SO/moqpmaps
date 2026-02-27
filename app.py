@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 app = Flask(__name__)
 
@@ -108,25 +108,27 @@ def load_plan():
 
     return jsonify(counties)
 
-
 @app.route("/api/allActive")
 def all_active():
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
 
     cur.execute("""
-        SELECT DISTINCT stateFips, countyFips
-        FROM plan_counties
+        SELECT pc.stateFips,
+               pc.countyFips,
+               GROUP_CONCAT(DISTINCT p.callsign) AS callsigns
+        FROM plan_counties pc
+        JOIN plans p ON pc.plan_id = p.id
+        GROUP BY pc.stateFips, pc.countyFips
     """)
 
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    #print(f'{rows=}')
 
-    # Return simple list of IDs
+    print(f'{rows=}')
+
     return jsonify(rows)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
