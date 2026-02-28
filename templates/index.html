@@ -41,12 +41,46 @@ const PlanControl = L.Control.extend({
       <p>Enter your callsign and click <i>New Plan</i> or <br>
          <i>Load Plan</i>. Click on the counties you plan to <br>
          activate. They will turn red. Click <i>Save</i>, <br>
-         then refresh the browser.</p>
-      <p><a href="{{ url_for('howto') }}"><button>More Details</button></a></p>
+         then refresh the browser. 
+         <a href="{{ url_for('howto') }}"><button>More Details</button></a></p>
       <p>Callsign: <input id="callsign" placeholder="N0CALL"></p>
       <button onclick="savePlan()">Save</button>
       <button onclick="loadPlan()">Load Plan</button>
       <button onclick="startPlanning()">New Plan</button>
+      <p><a href="{{ url_for('tabular') }}"><button>Tabular Listing</button></a></p>
+         <p>
+         <svg length="40" height="40" viewBox="0 0 50 50">
+            <rect
+               width="75"
+               height="75"
+               fill="#5dade2"
+            />
+         </svg>
+         No planned activations
+         </p>
+
+         <p>
+         <svg length="40" height="40" viewBox="0 0 50 50">
+            <rect
+               width="75"
+               height="75"
+               fill="#e74c3c"
+            />
+         </svg>
+         One or more activations
+         </p>
+
+         <p>
+         <svg length="40" height="40" viewBox="0 0 50 50">
+            <rect
+               width="75"
+               height="75"
+               fill="#ff0000"
+            />
+         </svg>
+         My Activations (when selected during planning)
+         </p>
+
     `;
     return div;
   }
@@ -144,7 +178,7 @@ layer.on('mouseover', () => {
   if (allActiveCounties.has(id)) {
     const calls = allActiveCounties.get(id).callsigns;
     layer.setTooltipContent(
-      `${baseName}<br><b>Active:</b> ${calls.join('<br>')}`
+      `${baseName}<br><b>Activators:<br></b> ${calls.join('<br>')}`
     );
   } else {
     layer.setTooltipContent(baseName);
@@ -191,7 +225,7 @@ fetch('/api/allActive')
 
 
 
-  });
+});
 </script>
 
 </body>

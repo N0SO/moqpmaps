@@ -3,11 +3,119 @@
 
 <head>
   <meta charset="utf-8" />
+  <link href="https://w0ma.org/mo_qso_party/results/2026/reports/styles.css" rel="stylesheet" type="text/css" />
   <title>How To Enter you County Activation Plans</title>
 </head>
 
 <body>
+<div id="instructions">
   <H1>How To Enter you County Activation Plans</H1>
-  <p>More to follow.</p>
+  <p>When the map initially loads, it will show the planned
+     activations recorded in the database. See the <i>Map Legend</i> 
+     below for the color scheme. <i>Mousing over</i> a county will
+     display the county name and a list of operator callsign(s) 
+     planning to activate that county.
+  </p>
+
+  <h3>Adding Your Activation Plans</h3>
+  <p>To add your activation plans:
+     <ol>
+     <li>Enter your callsign into the <i>Callsign</i> text box.</li>
+     <li>Click on the <i>New Plan</i> button.</li>
+     <li>Mouse over a county of interest. The county name, along with 
+         the callsign(s) of any operators planning to activate that county
+         will be displayed.</li>
+     <li>Click on a county to add it to your activation list. The selected
+         county will turn red.</li>
+     <li>Repeat steps 3 and 4 until your list is complete, then click
+         the <i>Save</i> button. This will save your selections to the 
+         database under your callsign.
+     <li>Click the browser <i>refresh</i> button. Note that the newly selected 
+         counties will remain red, and will not appear when 'mousing over' a 
+         county on the map until this is completed.    
+     </ol>
+  </p>
+
+  <h3>Editing Your Activation Plans</h3>
+  <p>To edit your activation plans:
+     <ol>
+     <li>Enter your callsign into the <i>Callsign</i> text box.</li>
+     <li>Click on the <i>Load Plan</i> button. Your previously selected
+         counties will turn red. Clicking on a selected (red) counyt will
+         remove it from your list. Clicking on non-red counties will add
+         them to your list.</li>
+     <li>Click the <i>Save</i> button and then refresh the browser when
+         your edits are complete.
+     </ol>
+
+
+</div>
+
+<div id="legend">
+<h3>Map Legend</h3>
+         <p>
+         <svg length="40" height="40" viewBox="0 0 50 50">
+            <rect
+               width="75"
+               height="75"
+               fill="#5dade2"
+            />
+         </svg>
+         No planned activations
+         </p>
+
+         <p>
+	 <svg length="40" height="40" viewBox="0 0 50 50">
+	    <rect
+	       width="75"
+	       height="75"
+	       fill="#e74c3c"
+	    />  
+	 </svg>
+         One or more activations
+         </p>
+
+         <p>
+         <svg length="40" height="40" viewBox="0 0 50 50">
+            <rect
+               width="75"
+               height="75"
+               fill="#ff0000"
+            />
+         </svg>
+         My Activations (when selected during planning)
+         </p>
+</div>
+
+<!--
+  if (myPlanCounties.has(id)) {
+    return {
+      color: '#000',
+      weight: 1,
+      fillColor: '#ff0000',   // MY plan
+      fillOpacity: 0.8
+    };
+  }
+
+  if (allActiveCounties.has(id)) {
+    return {
+      color: '#333',
+      weight: 1,
+      fillColor: '#e74c3c',   // Someone else
+      fillOpacity: 0.6
+    };
+  }
+
+  return {
+    color: '#333',
+    weight: 1,
+    fillColor: '#5dade2',    // Unclaimed
+    fillOpacity: 0.7
+  };
+
+-->
+
+
+
 </body>
 </html>

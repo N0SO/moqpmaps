@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <link href="https://w0ma.org/mo_qso_party/results/2026/reports/styles.css"" rel="stylesheet" type="text/css" />
+  <title>Tabular Listing of County Activation Plans</title>
+</head>
+
+<body>
+  <H1>Tabular Listing of County Activation Plans</H1>
+  <p>
+  <h3>Tabular list of county activations</h3>
+  <div id="countydata-container">
+  <!-- Table of activations will populate here -->
+
+  </div>
+  </p>
+  <script>
+// Function to fetch data from the Flask API
+async function fetchData() {
+    try {
+        // Make a GET request to your Flask API endpoint
+        const response = await fetch('/api/allTabular');
+        
+        // Parse the response body as JSON
+        const data = await response.json();
+        
+        // Display the data on the page
+        //displayData(data);
+        displayTable(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+// Function to dynamically update the HTML
+function displayData(data) {
+    const container = document.getElementById('countydata-container');
+    container.innerHTML = ''; // Clear previous content
+
+    // Example: Display data as a list
+    if (Array.isArray(data)) {
+        const list = document.createElement('ul');
+        data.forEach(item => {
+            const listItem = document.createElement('li');
+            // Adjust this based on the structure of your data
+            //listItem.textContent = `ID: ${item.id}, Name: ${item.name}`; 
+            //listItem.textContent = `CALL: ${item.callsigns}, Name: ${item.name} ${item.type}`; 
+            listItem.textContent = `COUNTY: ${item.name} ${item.type}, CALL: ${item.callsigns}`; 
+            list.appendChild(listItem);
+        });
+        container.appendChild(list);
+    } else {
+        container.textContent = JSON.stringify(data, null, 2); // Display raw JSON if not an array
+    }
+}
+
+// Function to dynamically update the HTML as a table
+function displayTable(data) {
+    const container = document.getElementById('countydata-container');
+    container.innerHTML = ''; // Clear previous content
+
+    // Example: Display data as a table
+    if (Array.isArray(data)) {
+        const table = document.createElement("table");
+        const headerRow = document.createElement("tr");
+        const th = document.createElement("th");
+        th.textContent = "County";
+        headerRow.appendChild(th);
+        const th1 = document.createElement("th");
+        th1.textContent = "Callsigns";
+        headerRow.appendChild(th1);
+        table.appendChild(headerRow);
+
+        data.forEach(item => {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.textContent = `${item.name} ${item.type}`;
+            row.appendChild(cell);
+            const cell1 = document.createElement("td");
+            cell1.textContent = `${item.callsigns}`;
+            row.appendChild(cell1);
+            table.appendChild(row);
+        });
+        container.appendChild(table);
+    } else {
+        container.textContent = JSON.stringify(data, null, 2); // Display raw JSON if not an array
+    }
+}
+
+// Call the fetchData function when the page loads
+document.addEventListener('DOMContentLoaded', fetchData);
+
+
+
+
+  </script>
+</body>
+</html>

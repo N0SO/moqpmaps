@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 app = Flask(__name__)
 
@@ -24,6 +24,10 @@ def index():
 @app.route("/howto")
 def howto():
     return render_template("howto.html")
+
+@app.route("/tabular")
+def tabular():
+    return render_template("tabular.html")
 
 @app.route("/api/savePlan", methods=["POST"])
 def save_plan():
@@ -133,6 +137,33 @@ def all_active():
     print(f'{rows=}')
 
     return jsonify(rows)
+
+@app.route("/api/allTabular")
+def all_tabular():
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+
+    cur.execute("""
+        SELECT pc.stateFips,
+               pc.countyFips,
+               pc.name,
+               pc.type,
+               GROUP_CONCAT(DISTINCT p.callsign) AS callsigns
+        FROM plan_counties pc
+        JOIN plans p ON pc.plan_id = p.id
+        GROUP BY pc.stateFips, pc.countyFips, pc.name,pc.type;
+    """)
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    print(f'{rows=}')
+
+    return jsonify(rows)
+
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
