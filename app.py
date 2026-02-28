@@ -4,7 +4,7 @@ import pymysql
 from datetime import datetime, timezone
 from moqpdbconfig import *
 
-VERSION = '0.1.3'
+VERSION = '0.1.4'
 
 app = Flask(__name__)
 
@@ -59,10 +59,10 @@ def save_plan():
 
     plan_id = cur.lastrowid
 
-    print(f'{data["counties"]=}')
+    #print(f'{data["counties"]=}')
 
     for c in data["counties"]:
-        print(f'{c=}')
+        #print(f'{c=}')
         cur.execute("""
             INSERT INTO plan_counties
             (plan_id, stateFips, countyFips, name, type)
@@ -98,7 +98,7 @@ def load_plan():
     """, (callsign, event))
 
     plan = cur.fetchone()
-    print(f'{callsign=}\n{plan=}')
+    #print(f'{callsign=}\n{plan=}')
 
     if not plan:
         return jsonify([])
@@ -110,7 +110,7 @@ def load_plan():
     """, (plan["id"],))
 
     counties = cur.fetchall()
-    print(f'{counties=}')
+    #print(f'{counties=}')
     cur.close()
     conn.close()
 
@@ -134,7 +134,7 @@ def all_active():
     cur.close()
     conn.close()
 
-    print(f'{rows=}')
+    #print(f'{rows=}')
 
     return jsonify(rows)
 
@@ -158,7 +158,7 @@ def all_tabular():
     cur.close()
     conn.close()
 
-    print(f'{rows=}')
+    #print(f'{rows=}')
 
     return jsonify(rows)
 
