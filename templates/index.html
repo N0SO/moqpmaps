@@ -42,12 +42,14 @@ const PlanControl = L.Control.extend({
          <i>Load Plan</i>. Click on the counties you plan to <br>
          activate. They will turn red. Click <i>Save</i>, <br>
          then refresh the browser. 
-         <a href="{{ url_for('howto') }}"><button>More Details</button></a></p>
+         <a href="{{ url_for('howto') }}" target="_blank" rel="noreferrer noopener">
+           <button>More Details</button></a></p>
       <p>Callsign: <input id="callsign" placeholder="N0CALL"></p>
       <button onclick="savePlan()">Save</button>
       <button onclick="loadPlan()">Load Plan</button>
       <button onclick="startPlanning()">New Plan</button>
-      <p><a href="{{ url_for('tabular') }}"><button>Tabular Listing</button></a></p>
+      <p><a href="{{ url_for('tabular') }}" target="_blank" rel="noreferrer noopener">
+         <button>Tabular Listing</button></a></p>
          <p>
          <svg length="40" height="40" viewBox="0 0 50 50">
             <rect
