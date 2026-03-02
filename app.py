@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from flask import Flask, request, jsonify, render_template
 import pymysql
 from datetime import datetime, timezone

@@ -15,7 +15,7 @@ The python specific requirements may be found  in the file requirements.txt.
 1. Setup the Linux host and make sure it's up to date. On a Raspberry Pi, get
    the latest image and install it, then perform updates (sudo apt update; 
    sudo apt upgrade). 
-2. Install mysql-server or mariadb-server. 
+2. Install mysql-server or mariadb-server: sudo apt install mysql-server 
 3. Install the files for this repository in a folder of your choosing.
 4. Setup python as a virtual environment in the folder you put the same folder
    you put the repo files in: python -m venv .venv
