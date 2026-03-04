@@ -1,0 +1,18 @@
+[Unit]
+Description=Missouri QSO Party County Activations Display
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/maps/moqpmaps
+ExecStart=/home/maps/moqpmaps/runapp.sh
+Restart=always
+RestartSec=5
+
+# Optional hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
